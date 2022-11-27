@@ -3,6 +3,7 @@ package io.abenezermulugeta.moviecatalogservice.resources;
 import io.abenezermulugeta.moviecatalogservice.models.CatalogItem;
 import io.abenezermulugeta.moviecatalogservice.models.Movie;
 import io.abenezermulugeta.moviecatalogservice.models.Rating;
+import io.abenezermulugeta.moviecatalogservice.models.UserRating;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -20,12 +21,9 @@ public class MovieCatalogResource {
 
     @GetMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-        List<Rating> ratings = Arrays.asList(
-                new Rating("1234", 4),
-                new Rating("5678", 3)
-        );
+        UserRating userRating = restTemplate.getForObject("http://localhost:8083/ratingsData/user" + userId, UserRating.class);
 
-        return ratings.stream()
+        return userRating.getUserRating().stream()
                 .map(r -> {
                     Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + r.getMovieId(), Movie.class);
                     return new CatalogItem(movie.getName(), "Test", r.getRating());
